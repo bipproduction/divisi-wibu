@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String            @id @default(uuid())
+  name            String
+  email           String?
+  password        String?
+  UserProject     UserProject[]
+  ProjecttaskUser ProjecttaskUser[]
+}
+
+model Project {
+  id          String        @id @default(uuid())
+  name        String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  userId      String?
+  Task        Task[]
+  UserProject UserProject[]
+  ProjectTask ProjectTask[]
+}
+
+model UserProject {
+  id        String   @id @default(uuid())
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String
+  Project   Project? @relation(fields: [projectId], references: [id])
+  projectId String
+}
+
+model ProjectTask {
+  id              String            @id @default(uuid())
+  name            String
+  Project         Project?          @relation(fields: [projectId], references: [id])
+  projectId       String?
+  Task            Task?             @relation(fields: [taskId], references: [id])
+  taskId          String?
+  ProjecttaskUser ProjecttaskUser[]
+}
+
+model ProjecttaskUser {
+  id            String       @id @default(uuid())
+  User          User?        @relation(fields: [userId], references: [id])
+  userId        String?
+  ProjectTask   ProjectTask? @relation(fields: [projectTaskId], references: [id])
+  projectTaskId String?
+}
+
+model Task {
+  id           String        @id @default(uuid())
+  name         String
+  start        DateTime
+  end          DateTime
+  progress     Int?
+  type         String?
+  hideChildren Boolean?
+  displayOrder Int?
+  project      String?
+  dependencies Json?
+  isDisabled   Boolean?
+  Project      Project?      @relation(fields: [projectId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  projectId    String?
+  ProjectTask  ProjectTask[]
+}
